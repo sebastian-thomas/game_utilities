@@ -1,0 +1,111 @@
+<html>
+<head>
+	<title>Maze Maker</title>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+	<script
+	  src="https://code.jquery.com/jquery-3.2.1.min.js"
+	  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+	  crossorigin="anonymous"></script>
+
+	<!-- Latest compiled and minified JavaScript 
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	-->
+	<style type="text/css">
+		td {
+			width: 50px;
+			height: 50px;
+			border: 2px solid black;
+		}
+		.hover {
+			background-color: #6A1332;
+		}
+	</style>
+</head>
+<body>
+
+	<nav class="navbar navbar-default navbar-inverse">
+	  <div class="container-fluid">
+	    <div class="navbar-header">
+	      <a class="navbar-brand" href="#">Home</a>
+	    </div>
+	  </div>
+	</nav>
+	
+	<div class="container">
+		<div class="panel panel-default">
+		  <div class="panel-body">
+		    <div class="input-group">
+			  <input type="text" class="form-control" id="rows" placeholder="Rows" aria-describedby="sizing-addon2" >
+			  <input type="text" class="form-control" id="cols" placeholder="Cols" aria-describedby="sizing-addon2" >
+			  <button class="btn btn-default" type="button" onclick= "intiMaze()">MazeIt</button>
+			</div>
+		  </div>
+		</div>
+	</div>
+
+	<div class="container">
+		<div id = "mazeContainer">
+			<table id="maze">
+			</table>
+		</div> 
+	</div>
+
+	<script type="text/javascript">
+
+		var colors = ['#524947','#6DBB4F'];
+
+		function Cell (x, y, type){
+			this.x = x;
+			this.y = y;
+			this.type = type;
+		}
+
+		function intiMaze(){
+			var rows = document.getElementById("rows").value;
+			var cols = document.getElementById("cols").value;
+
+			if(rows == null || rows == 0){
+				rows = 10;
+			}
+
+			if (cols == null || cols == 0){
+				cols = 10;
+			}
+
+			var maze = [];
+			for (var i=0; i < rows; ++i){
+				maze[i] = [];
+				for(var j = 0; j < cols; ++j){
+					maze[i][j] = new Cell(i,j,0);
+				}
+			}
+			drawMaze(maze, rows, cols);
+		}
+
+		function drawMaze(maze, rows, cols){
+			var table = "";
+			for (var i = 0; i < rows; ++i){
+				table = table + '<tr>';
+				for(var j=0; j < cols; ++j){
+					table = table + '<td id="row' + i + 'col' + j +'" '
+								  + 'style="background-color:' + colors[maze[i][j].type] + ';" '
+								  + 'data-row="' + i + '" ' 
+								  + 'data-col="' + j + '" '
+								  +  '></td>';
+				}
+				table = table + "</tr>";
+			}
+			document.getElementById("maze").innerHTML = table;
+		}
+
+		$("#maze").on('click', 'td', function(){
+			console.log("oo " + $(this).data("row") + " " + $(this).data("col"));
+		});
+	</script>
+</body>
+</html>
