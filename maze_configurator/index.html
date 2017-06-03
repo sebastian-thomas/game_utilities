@@ -39,25 +39,84 @@
 	<div class="container">
 		<div class="panel panel-default">
 		  <div class="panel-body">
-		    <div class="input-group">
-			  <input type="text" class="form-control" id="rows" placeholder="Rows" aria-describedby="sizing-addon2" >
-			  <input type="text" class="form-control" id="cols" placeholder="Cols" aria-describedby="sizing-addon2" >
-			  <button class="btn btn-default" type="button" onclick= "intiMaze()">MazeIt</button>
+		    <div class="input-group" >
+			  <div class="col-xs-2"><input type="text" class="form-control" id="rows" placeholder="Rows" ></div>
+			  <div class="col-xs-2"><input type="text" class="form-control" id="cols" placeholder="Cols" ></div>
+			  <div class="col-xs-2"><button class="btn btn-default" type="button" onclick= "intiMaze()">MazeIt</button></div>
+			  <div class="col-xs-4"><p id="start_cell">Start Cell</p></div>
 			</div>
 		  </div>
 		</div>
 	</div>
 
 	<div class="container">
-		<div id = "mazeContainer">
-			<table id="maze">
-			</table>
-		</div> 
+		 <div class="row">
+		 	<div id = "mazeContainer" class="col-md-8">
+				<table id="maze"></table>
+			</div> 
+			<div id="panel" class="col-md-4">
+				<div class="panel panel-default">
+					<div class="panel-body container-fluid">
+						<div class="row"> 
+							<div class="col-xs-4">
+								<label for="cell_rows">Row</label>
+								<input type="text" class="form-control" id="cell_row" disabled>
+							</div>
+			  				<div class="col-xs-4">
+			  					<label for="cell_cols">Col</label>
+			  					<input type="text" class="form-control" id="cell_col" disabled>
+			  				</div>
+			  				<div class="col-xs-4">
+			  					<label for="cell_type">Type</label>
+								<select class="form-control" id="cell_type" disabled>
+									<option>0</option>
+									<option>1</option>
+								</select>
+			  				</div>
+						</div>
+						
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-body container-fluid">
+						<div class="row">
+							<!--
+							<div class="col-xs-4">
+								<button class="btn btn-default" type="button" onclick= "updateCell()">Update Cell</button>
+							</div>
+						-->
+							<div class="col-xs-4">
+								<button class="btn btn-default" type="button" onclick= "setStartPoint()">Set Start</button>
+							</div>
+							<div class="col-xs-4">
+								<button class="btn btn-default" type="button" onclick= "getJson()">Get Json</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-body container-fluid">
+						<div class="row">
+							<div class="col-xs-12">
+								<textarea class="form-control" rows="10" cols ="10" id="jsonConfig"></textarea>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		 </div>
 	</div>
 
 	<script type="text/javascript">
 
-		var colors = ['#524947','#6DBB4F'];
+		var MazeConfig = {};
+		MazeConfig.colors = ['#524947','#6DBB4F'];
+		MazeConfig.rows = 10;
+		MazeConfig.cols = 10;
+		MazeConfig.startPoint = {};
 
 		function Cell (x, y, type){
 			this.x = x;
@@ -69,33 +128,42 @@
 			var rows = document.getElementById("rows").value;
 			var cols = document.getElementById("cols").value;
 
-			if(rows == null || rows == 0){
-				rows = 10;
+			if(rows != null && rows > 0){
+				MazeConfig.rows = rows;
 			}
 
-			if (cols == null || cols == 0){
-				cols = 10;
+			if (cols != null && cols > 0){
+				MazeConfig.cols = cols;
 			}
 
 			var maze = [];
-			for (var i=0; i < rows; ++i){
+			for (var i=0; i < MazeConfig.rows; ++i){
 				maze[i] = [];
-				for(var j = 0; j < cols; ++j){
+				for(var j = 0; j < MazeConfig.cols; ++j){
 					maze[i][j] = new Cell(i,j,0);
 				}
 			}
-			drawMaze(maze, rows, cols);
+			MazeConfig.startPoint.row =Math.floor(MazeConfig.rows/2);
+			MazeConfig.startPoint.col =Math.floor(MazeConfig.cols/2);
+			MazeConfig.maze = maze;
+			drawMaze();
 		}
 
-		function drawMaze(maze, rows, cols){
+		function drawMaze(){
+			var maze = MazeConfig.maze;
+			var rows = MazeConfig.rows;
+			var cols = MazeConfig.cols;
+
 			var table = "";
 			for (var i = 0; i < rows; ++i){
 				table = table + '<tr>';
 				for(var j=0; j < cols; ++j){
+					//console.log('aa' + maze[i][j].type);
 					table = table + '<td id="row' + i + 'col' + j +'" '
-								  + 'style="background-color:' + colors[maze[i][j].type] + ';" '
+								  + 'style="background-color:' + MazeConfig.colors[maze[i][j].type] + ';" '
 								  + 'data-row="' + i + '" ' 
 								  + 'data-col="' + j + '" '
+								  + 'data-type="' + maze[i][j].type +'" '
 								  +  '></td>';
 				}
 				table = table + "</tr>";
@@ -105,7 +173,27 @@
 
 		$("#maze").on('click', 'td', function(){
 			console.log("oo " + $(this).data("row") + " " + $(this).data("col"));
+			$("#cell_row").val($(this).data("row"));
+			$("#cell_col").val($(this).data("col"));
+			
+
+			var type = MazeConfig.maze[$(this).data("row")][$(this).data("col")].type;
+			type = (type + 1)% MazeConfig.colors.length;
+			MazeConfig.maze[$(this).data("row")][$(this).data("col")].type = type;
+			$("#cell_type").val(type);
+			drawMaze();
 		});
+
+		function getJson(){
+			$('#jsonConfig').val(JSON.stringify(MazeConfig));
+		}
+
+		function setStartPoint(){
+			MazeConfig.startPoint.row = $("#cell_row").val();
+			MazeConfig.startPoint.col = $("#cell_col").val();
+			console.log(MazeConfig.startPoint);
+			$('#start_cell').html('Start Cell : (' + $("#cell_row").val() + ',' + $("#cell_col").val() +')');
+		}
 	</script>
 </body>
 </html>
